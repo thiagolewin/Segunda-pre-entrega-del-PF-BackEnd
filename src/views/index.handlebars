@@ -1,0 +1,24 @@
+{{#if isValid}}
+<div>
+    {{#each docs}}
+    <div>
+        <p>{{this._id}}</p>
+        {{#each this.products}}
+        <p>{{this.name}}</p>
+        {{/each}}
+    </div>
+    {{/each}}
+</div>
+<br />
+<div>
+    {{#if hasPrevPage}}
+        <a href={{this.prevLink}}><< Anterior</a>
+    {{/if}}
+    {{this.page}}
+    {{#if hasNextPage}}
+    <a href={{this.nextLink}}>Siguiente >></a>
+    {{/if}}
+</div>
+{{else}}
+<h1>No hay carritos para mostrar</h1>
+{{/if}}
