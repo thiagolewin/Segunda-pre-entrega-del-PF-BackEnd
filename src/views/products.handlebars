@@ -1,9 +1,10 @@
 {{#if isValid}}
 <div>
-    {{#each docs}}
-    <p>{{name}}</p>
-    <p>{{price}}</p>
-    <p>{{quantity}}</p>
+    {{#each payload}}
+    {{this}}
+    <p>Nombre: {{this.name}}</p>
+    <p>Precio: {{this.price}}$</p>
+    <p>Cantidad: {{this.quantity}}</p>
     {{/each}}
 </div>
 <br />

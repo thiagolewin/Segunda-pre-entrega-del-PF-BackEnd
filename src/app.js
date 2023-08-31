@@ -22,6 +22,7 @@ app.listen(SERVER_PORT,()=> {
     console.log("Escuchando puerto desde " + SERVER_PORT)
 })
 const connectMongoDB = async ()=> {
-    await mongoose.connect('mongodb://localhost:27017/colegio_C16?retryWrites=true&w=majority')
+    await mongoose.connect('mongodb://localhost:27017/cartsAndProducts?retryWrites=true&w=majority')
     console.log("Conectado con exito a MongoDB usando Moongose.");
 }
+connectMongoDB()

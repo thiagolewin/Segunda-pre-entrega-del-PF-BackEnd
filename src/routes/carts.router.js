@@ -1,23 +1,63 @@
 import {Router} from 'express'
+import mongoose from 'mongoose'
 import { cartsModel } from '../models/carts.model.js'
+import { productModel } from '../models/product.model.js'
 const router = Router()
+router.post("/", async (req,res)=> {
+  try {
+    const cart = req.body
+    const existingProducts = await productModel.find({})
+    let correctProducts = [];
+    req.body.products.forEach(reqProduct => {
+      if (!existingProducts.some(existingProduct => existingProduct.name === reqProduct.name)) {
+          correctProducts.push(reqProduct);
+      }
+    });
+    const products = await productModel.insertMany(correctProducts);
+    const productNames = req.body.products.map((product) => product.name);
+    const productsToCart = products.filter((product) =>
+    productNames.includes(product.name)
+    );
+    cart.products = productsToCart.map(product => product._id);
+    const result = await cartsModel.create(cart);
 
+    if (result) {
+      res.status(200).send({ message: "Carrito creado con productos" });
+    }
+  } catch (error) {
+    console.error("No se pudo agregar el carrito " + error);
+    res.status(500).send({ error: "No se pudo agregar el carrito", message: error });
+  }
+})
 router.delete("/:cid/products/:pid", async (req,res)=> {
+  const ObjectId = mongoose.Types.ObjectId;
     try {
         const cid = req.params.cid
         const pid = req.params.pid
-        const result = await cartsModel.updateOne(
-            { _id: cid }, // Filtra el carrito de compra por su ID
-            { $pull: { products: { _id: pid } } } // Usa $pull para eliminar el producto por su ID
-          );
-          if (result.nModified === 1) {
-            res.status(202).send({ status: "success", payload: result });
+        const cart = await cartsModel.findOne({ _id: cid});
+        console.log(cart)
+        if (cart) {
+          if (!ObjectId.isValid(pid)) {
+            return res.status(400).send({ status: "error", message: "pid no es un ObjectId válido." });
           } else {
-            res.status(202).send({ status: "error", payload: result });
+            const result = await cartsModel.updateOne(
+              { _id: cid },
+               { $pull: { products: new ObjectId(pid) } }
+             );
+             if (result.modifiedCount === 1) {
+               res.status(202).send({ status: "success", payload: result });
+             } else {
+               res.status(202).send({ status: "error", payload: result });
+             }
           }
+
+        } else {
+            res.status(202).send({ status: "error"});
+        }
+
     } catch (error) {
-        console.error("No se pudo obtener usuarios con moongose: " + error);
-        res.status(500).send({ error: "No se pudo obtener usuarios con moongose", message: error });
+        console.error("No se pudo eliminar productos: " + error);
+        res.status(500).send({ error: "No se pudo eliminar productos con moongose", message: error });
     }
 })
 router.put("/:cid", async (req,res)=> {
@@ -89,3 +129,4 @@ router.get("/:cid", async (req,res)=> {
         res.status(500).send({ message: 'Error interno del servidor' });
     }
 })
+export default router

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-
+import mongoosePaginate from 'mongoose-paginate-v2'
 const productCollection = 'Product';
 
 
@@ -9,7 +9,7 @@ const productSchema  = new mongoose.Schema({
     price: Number,
     quantity: Number
 })
-
+productSchema.plugin(mongoosePaginate)
 
 // Definimos el modelo
 export const productModel = mongoose.model(productCollection, productSchema );
